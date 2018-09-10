@@ -13,11 +13,11 @@ export default new Router({
       // component: HelloWorld
       name: 'Posts',
       component: Posts
-    },
-    {
-      path: '/posts',
-      name: 'Posts',
-      component: Posts
     }
+    // {
+    //   path: '/posts',
+    //   name: 'Posts',
+    //   component: Posts
+    // }
   ]
 })

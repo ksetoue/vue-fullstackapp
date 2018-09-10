@@ -3,7 +3,7 @@
     <h1>Posts</h1>
     This file will list all the posts.
 
-    <div v-for="post in posts" :key="post._id">
+    <div v-for="post in postsList" :key="post.user">
       <p>
         <span><b>{{ post.title }}</b></span><br />
         <span>{{ post.content }}</span>
@@ -13,30 +13,21 @@
 </template>
 
 <script>
-import PostsService from '@/api/PostService.js'
-
+import { mapState } from 'vuex'
 export default {
   name: 'posts',
+  computed: mapState([
+    'posts'
+  ]),
 
   data () {
     return {
-      posts: []
+      postsList: []
     }
   },
 
   mounted () {
-    this.getPosts()
-    console.log('mounted')
-    console.log('mounted' - this.posts)
-  },
-
-  methods: {
-    async getPosts () {
-      const response = await PostsService.fetchPosts()
-      this.posts = response.data
-      console.log(response.data)
-      console.log(this.posts)
-    }
+    this.postsList = this.posts.data
   }
 }
 </script>
