@@ -156,6 +156,84 @@ Pronto! Sua aplicação Vue já está no ar! :D
 
 > adicionar aqui descrição das pastas e arquivos
 
+### Criando o primeiro componente
+
+Para criar o nosso primeiro componente, vá até a pasta `components` e crie um arquivo chamado `Posts.vue`. Adicione o seguinte código ao seu arquivo recém criado:
+
+```js
+<template>
+  <div class="posts">
+    <h1>Posts</h1>
+    This file will list all the posts.
+
+    <div v-for="post in postsList" :key="post.user">
+      <p>
+        <span><b>User: {{ post.user }}</b></span><br />
+        <span><b>Title: {{ post.title }}</b></span><br />
+        <span>{{ post.content }}</span>
+      </p>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapState } from 'vuex'
+export default {
+  name: 'posts',
+  computed: mapState([
+    'posts'
+  ]),
+
+  data () {
+    return {
+      postsList: []
+    }
+  },
+
+  mounted () {
+    this.postsList = this.posts.data
+  }
+}
+</script>
+
+<style>
+</style>
+
+```
+
+Nosso projeto está usando rotas para acessar os arquivos, logo precisamos alterar o arquivo `router/index.js`:
+
+```js
+import Vue from 'vue'
+import Router from 'vue-router'
+// import HelloWorld from '@/components/HelloWorld'
+import Posts from '@/components/Posts'
+
+Vue.use(Router)
+
+export default new Router({
+  routes: [
+    {
+      path: '/',
+      // name: 'HelloWorld',
+      // component: HelloWorld
+      name: 'Posts',
+      component: Posts
+    }
+    // {
+    //   path: '/posts',
+    //   name: 'Posts',
+    //   component: Posts
+    // }
+  ]
+})
+
+```
+
+Pronto! Isso fará com que o componente Post seja carregado na página inicial da sua aplicação!
+
+### Conectando a API
+
 Para fazer a conexão com o servidor, vamos utilizar uma biblioteca chamada `axios`. Execute o comando abaixo para adicioná-lo ao projeto.
 
 ```sh
@@ -176,7 +254,124 @@ export default() => {
 }
 ```
 
-Vamos criar um novo arquivo, chamado `postServices.js`. Ele será usado para conectar com o endpoint criado na API.
+Esse código adiciona a url da nossa API no axios, e vai facilitar o uso dela em outros lugares do código. Feito isso, vamos testar se nossa API está funcionando, e se conseguimos pegar todos os posts existentes até então!
+
+Para guardas as informações da API dentro da instância do Vue, nós vamos utilizar uma lib chamada [Vuex](), usada para gerenciar estados.
+
+Para deixar nosso projeto organizado, vamos criar dentro da pasta `src` uma pasta chamada `store`. Dentro dessa pasta, criaremos um arquivo `store.js`, no qual vamos adicionar o seguinte código:
+```js
+import Vue from 'vue'
+import Vuex from 'vuex'
+import Api from '../api/Api'
+
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+  state: {
+    posts: []
+  },
+
+  actions: {
+    loadPostsList: function ({ commit }) {
+      Api().get('/posts')
+        .then((response) => {
+          commit('SET_POSTS_LIST', { list: response.data }, (err) => {
+            console.log(err)
+          })
+        })
+    }
+  },
+
+  mutations: {
+    SET_POSTS_LIST: (state, { list }) => {
+      state.posts = list
+    }
+  },
+
+  getters: {
+    getPostsList: state => state.posts
+  }
+})
+
+export default store
+
+```
+
+O código acima declara o uso do Vuex dentro do da instancia do Vue. Note que temos quatro objetos diferentes:
+
+- state: utilizado para guardar os estados
+- actions: utilizados para disparar ações que vão mutar os estados contidos em state
+- mutations: responsáveis por mutar os estados dentro de state
+- getters: retornam os estados
+
+No arquivo acima temos dentro de `state` a váriavel ``post`` que vai guardar o vetor com todos os posts retornados na API.
+Vamos usar a action  `loadPostsList` para disparar a função que chama a Api.js que criamos anteriormente, para chamar nossa API e guardar os posts dentro da variável no Vuex. Repare que a action dispara a mutation `SET_POSTS_LIST`, que é responsável por acessar `state.posts` e alterar o seu valor.
+
+Pronto! Criamos nosso arquivo para manipular os dados no Vuex. Agora, precisamos incluí-lo no main.js e no App.vue. Faremos isso para que o Vue reconheça que estamos usando esse arquivo `store` e possa acessar os itens declarados no Vuex.
+
+Seu `main.js` deve ficar semelhante a:
+
+```js
+// The Vue build version to load with the `import` command
+// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
+import Vue from 'vue'
+import App from './App'
+import router from './router'
+import store from './store/store'
+
+Vue.config.productionTip = false
+
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  router,
+  store,
+  components: { App },
+  template: '<App/>'
+})
+```
+
+Como precisamos carregar os posts antes de exibí-los na tela, vamos chamar os metodos do store antes de montar o componente ``App.vue``. Isso é necessário para que os dados sejam carregados corretamente, visto que a requisição feita na API é assincrona e para evitar problemas como carregar a lista antes que os dados estejam na instância, vamos fazer isso durante a montagem do componente principal. Seu arquivo `Àpp.vue` deve ficar parecido com:
+
+```js
+<template>
+  <div id="app">
+    <router-view/>
+  </div>
+</template>
+
+<script>
+import { mapState } from 'vuex'
+
+export default {
+  name: 'App',
+  computed: mapState([
+    'posts'
+  ]),
+
+  async beforeMount () {
+    const dispatch = this.$store.dispatch
+    dispatch('loadPostsList')
+  }
+}
+</script>
+
+<style>
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+</style>
+
+```
+
+Até o momento, a tela da sua aplicação deve ser semelhante a seguinte:
+
+> adicionar imagem da aplicação (primeiro-post)
 
 ## Outros links interessantes:
 Abaixo você encontra alguns links interessantes sobre Vue e alguns recursos adicionais.

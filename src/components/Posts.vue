@@ -5,7 +5,8 @@
 
     <div v-for="post in postsList" :key="post.user">
       <p>
-        <span><b>{{ post.title }}</b></span><br />
+        <span><b>User: {{ post.user }}</b></span><br />
+        <span><b>Title: {{ post.title }}</b></span><br />
         <span>{{ post.content }}</span>
       </p>
     </div>
