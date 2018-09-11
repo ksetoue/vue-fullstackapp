@@ -21,7 +21,7 @@ const store = new Vuex.Store({
 
   mutations: {
     SET_POSTS_LIST: (state, { list }) => {
-      state.posts = list
+      state.posts = list.data
     }
   },
 

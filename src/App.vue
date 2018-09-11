@@ -16,6 +16,7 @@ export default {
   async beforeMount () {
     const dispatch = this.$store.dispatch
     dispatch('loadPostsList')
+    console.log(this.$store.state.posts)
   }
 }
 </script>

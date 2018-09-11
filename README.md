@@ -158,6 +158,12 @@ Pronto! Sua aplicação Vue já está no ar! :D
 
 ### Criando o primeiro componente
 
+Primeiro, vamos adicionar o sass:
+
+```sh
+$ npm install --save-dev node-sass
+```
+
 Para criar o nosso primeiro componente, vá até a pasta `components` e crie um arquivo chamado `Posts.vue`. Adicione o seguinte código ao seu arquivo recém criado:
 
 ```js
@@ -331,7 +337,7 @@ new Vue({
 })
 ```
 
-Como precisamos carregar os posts antes de exibí-los na tela, vamos chamar os metodos do store antes de montar o componente ``App.vue``. Isso é necessário para que os dados sejam carregados corretamente, visto que a requisição feita na API é assincrona e para evitar problemas como carregar a lista antes que os dados estejam na instância, vamos fazer isso durante a montagem do componente principal. Seu arquivo `Àpp.vue` deve ficar parecido com:
+Como precisamos carregar os posts antes de exibí-los na tela, vamos chamar os metodos do store antes de montar o componente ``App.vue``. Isso é necessário para que os dados sejam carregados corretamente, visto que a requisição feita na API é assincrona e para evitar problemas como carregar a lista antes que os dados estejam na instância, vamos fazer isso durante a montagem do componente principal. Seu arquivo `App.vue` deve ficar parecido com:
 
 ```js
 <template>
@@ -372,6 +378,18 @@ export default {
 Até o momento, a tela da sua aplicação deve ser semelhante a seguinte:
 
 > adicionar imagem da aplicação (primeiro-post)
+
+### Alterando o Front-end
+
+Agora que conseguimos acessar os posts na API, vamos formatar a visualização. Uma biblioteca legal de se trabalhar para manipular componentes em Vue é o [element](https://element.eleme.io). Vamos utilizar ele aqui para alterar nosso front-end.
+
+Para adicionar o ``element`` ao seu projeto, execute o seguinte comando no cmd:
+
+```sh
+$ npm i element-ui -S
+```
+
+
 
 ## Outros links interessantes:
 Abaixo você encontra alguns links interessantes sobre Vue e alguns recursos adicionais.
