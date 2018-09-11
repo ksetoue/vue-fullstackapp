@@ -1,58 +1,22 @@
 <template>
-  <div class="posts">
+  <div>
     <h1>Posts</h1>
     This file will list all the posts.
     <new-post></new-post>
-    <div ></div>
-    <div
-      class="post-list"
-      v-for="post in postList"
-      :key="post._id"
-    >
-      <div class="post-box">
-        <span class="post-box-user" v-text="post.user"></span>
-        <p class="post-box-content" v-text="post.content"></p>
-      </div>
-    </div>
+    <post-list></post-list>
   </div>
 </template>
 
 <script>
 import NewPost from './NewPost.vue'
-import { mapGetters } from 'vuex'
+import PostList from './PostList.vue'
 
 export default {
   name: 'posts',
 
   components: {
-    NewPost
-  },
-
-  computed: {
-    ...mapGetters({ postList: 'getPostsList' })
-  },
-
-  // computed: {
-  //   postList () {
-  //     return this.$store.getters.getPostsList
-  //   }
-  // },
-
-  data () {
-    return {
-      text: ''
-    }
+    NewPost,
+    PostList
   }
 }
 </script>
-
-<style>
-.post-list {
-  display: flex;
-}
-
-.post-box {
-  flex: flex-grow;
-}
-
-</style>

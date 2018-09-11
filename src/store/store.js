@@ -21,7 +21,14 @@ const store = new Vuex.Store({
     async createPost ({ state, dispatch, commit }, newPostInfo) {
       await Api().post('posts', { user: newPostInfo.user, title: 'title', content: newPostInfo.content })
       return dispatch('loadPostsList', { commit })
+    },
+
+    async deletePost ({ state, dispatch, commit }, post) {
+      console.log('post', post)
+      await Api().delete('posts' + post._id)
+      return dispatch('loadPostsList', { commit })
     }
+
   },
 
   mutations: {
