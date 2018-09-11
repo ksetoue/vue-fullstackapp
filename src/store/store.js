@@ -16,6 +16,11 @@ const store = new Vuex.Store({
             console.log(err)
           })
         })
+    },
+
+    async createPost ({ state, dispatch, commit }, newPostInfo) {
+      await Api().post('posts', { user: newPostInfo.user, title: 'title', content: newPostInfo.content })
+      return dispatch('loadPostsList', { commit })
     }
   },
 

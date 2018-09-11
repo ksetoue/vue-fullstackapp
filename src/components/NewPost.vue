@@ -22,6 +22,8 @@
 
 </template>
 <script>
+import { mapActions } from 'vuex'
+
 export default {
   name: 'NewPost',
 
@@ -33,14 +35,22 @@ export default {
 
   data () {
     return {
+      user: 'meuUser',
       title: '',
       content: ''
     }
   },
 
   methods: {
-    addPost () {
+    ...mapActions(['createPost']),
 
+    addPost () {
+      let newPost = {
+        user: this.user,
+        title: this.title,
+        content: this.content
+      }
+      this.createPost(newPost)
     },
 
     newCommentKeyDown () {
