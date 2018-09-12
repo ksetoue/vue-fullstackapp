@@ -172,10 +172,9 @@ Para criar o nosso primeiro componente, vá até a pasta `components` e crie um 
     <h1>Posts</h1>
     This file will list all the posts.
 
-    <div v-for="post in postsList" :key="post.user">
+    <div v-for="post in postsList" :key="post._id">
       <p>
         <span><b>User: {{ post.user }}</b></span><br />
-        <span><b>Title: {{ post.title }}</b></span><br />
         <span>{{ post.content }}</span>
       </p>
     </div>
@@ -197,7 +196,7 @@ export default {
   },
 
   mounted () {
-    this.postsList = this.posts.data
+    this.postsList = this.posts
   }
 }
 </script>
@@ -387,8 +386,264 @@ Para adicionar o ``element`` ao seu projeto, execute o seguinte comando no cmd:
 
 ```sh
 $ npm i element-ui -S
+$ npm install
 ```
 
+Após incluir o Element, vamos criar um elemento para incluir novos posts. Esse componente terá um campo para incluir o conteúdo do post e um botão para enviar o post para a API. Vamos usar o Element para criar o campo de `input`. Primeiro, vamos criar um arquivo chamado `NewPost.vue` dentro da pasta components e adicionar o seguinte código: 
+
+```js
+<template>
+  <div class="post-wrapper">
+    <el-input
+      class="el-textarea"
+      type="textarea"
+      resize="none"
+      :autosize="{ minRows: 2, maxRows: 2 }"
+      :rows="1"
+      :placeholder="formatPlaceholder"
+      v-model="content"
+      @keydown.native="newCommentKeyDown($event)"
+    ></el-input>
+    <div class="wrapper__button">
+      <el-button
+          class="wrapper__button-send"
+          type="primary"
+          slot="append"
+          @click="addPost()"
+      >Enviar</el-button>
+    </div>
+  </div>
+
+</template>
+<script>
+import { mapActions } from 'vuex'
+
+export default {
+  name: 'NewPost',
+
+  computed: {
+    formatPlaceholder () {
+      return `Add new comment`
+    }
+  },
+
+  data () {
+    return {
+      user: 'karol',
+      title: '',
+      content: ''
+    }
+  },
+
+  methods: {
+    ...mapActions(['createPost']),
+
+    addPost () {
+      let newPost = {
+        user: this.user,
+        title: this.title,
+        content: this.content
+      }
+      this.createPost(newPost)
+    },
+
+    newCommentKeyDown () {
+
+    }
+  }
+}
+</script>
+<style>
+.post-wrapper {
+  display: flex;
+  padding: 5px;
+  justify-content: center;
+
+}
+
+.el-textarea {
+  padding: 5px;
+}
+.el-textarea__inner {
+    width: 660px;
+    border-radius: 6px;
+    padding: 8px 15px;
+    overflow: hidden;
+  }
+
+.el-textarea__inner:focus {
+  border-color: #8215c5;
+}
+
+.wrapper__button {
+  padding: 5px;
+  align-self: center;
+}
+
+.wrapper__button-send {
+  border-radius: 6px;
+  border-style: solid;
+  background-color: #8215c5;
+  border-color:#8215c5;
+  color: #ffffff;
+}
+
+</style>
+
+
+```
+
+Em seguida, vamos alterar o arquivo ``Posts.vue`` para incluir o componente. Antes de incluir o novo componente, note que o código desse arquivo pode ser melhorado, separando dois componentes: NewPost que terá o código responsável por criar novos posts e PostList, posicionado logo abaixo para listar todos os posts existentes. Fazendo essas alterações, teremos o seguinte código dentro de ``Posts.vue``: 
+
+```js 
+<template>
+  <div>
+    <h1>Posts</h1>
+    This file will list all the posts.
+    <new-post></new-post>
+    <post-list></post-list>
+  </div>
+</template>
+
+<script>
+import NewPost from './NewPost.vue'
+import PostList from './PostList.vue'
+
+export default {
+  name: 'posts',
+
+  components: {
+    NewPost,
+    PostList
+  }
+}
+</script>
+
+```
+
+Antes de executar, vamos criar o componente ``PostList`` que terá o front-end da lista de posts. Vamos criar um arquivo com o nome `PostList.vue` com o seguinte código: 
+
+```js
+
+<template>
+  <div class="post-list">
+    <div
+      class="post-box"
+      v-for="post in postList"
+      :key="post._id"
+    >
+      <p class="post-box-content" v-text="post.content"></p>
+
+      <div class="post-session">
+        <div class="post-box-user">
+          <span v-text="post.user"></span>
+        </div>
+        <el-button
+            class="remove-post"
+            type="primary"
+            @click="removePost(post)"
+        >Remover</el-button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapGetters, mapActions } from 'vuex'
+
+export default {
+  name: 'PostList',
+
+  // computed: {
+  //   ...mapGetters([] 'getPostsList' ])
+  // },
+  computed: {
+    ...mapGetters([ 'getPostsList' ]),
+
+    postList () {
+      let list = this.getPostsList
+      return list.reverse()
+    }
+  },
+
+  methods: {
+    ...mapActions(['deletePost']),
+
+    removePost (post) {
+      this.deletePost(post)
+    }
+  }
+}
+</script>
+<style>
+.post-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-box {
+  flex: flex-grow;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+  margin: 17px;
+  margin-right: 109px;
+  margin-left: 109px;
+  color: #414141;
+  background: #f5e4ff85;
+  padding: 9px;
+}
+
+.remove-post {
+  border-radius: 6px;
+  border-style: solid;
+  background-color: #8215c5;
+  border-color:#8215c5;
+  color: #ffffff;
+}
+
+.post-session {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.post-box-content {
+  text-align: left;
+  background-color: #f3dfff;
+  border-radius: 6px;
+  height: 100px;
+  padding: 14px;
+}
+
+.post-box-user {
+  align-content: flex-start;
+}
+
+</style>
+
+```
+
+Para remover um post, devemos adicionar o seguinte método ao arquivo `PostList.vue`: 
+```js 
+methods: {
+    ...mapActions(['deletePost']),
+
+    removePost (post) {
+      this.deletePost(post)
+    }
+  }
+```
+
+E dentro do arquivo `store.js`, a seguinte action: 
+
+```js 
+async deletePost ({ state, dispatch, commit }, post) {
+      await Api().delete(`posts/${post._id}`)
+      return dispatch('loadPostsList', { commit })
+    }
+```
 
 
 ## Outros links interessantes:
@@ -419,3 +674,7 @@ Abaixo você encontra alguns links interessantes sobre Vue e alguns recursos adi
 * [CSS Tricks](https://css-tricks.com/)
 * [httpstatuses](https://httpstatuses.com/)
 * [gitignore.io](gitignore.io)
+
+# Agradecimentos
+
+Obrigada Lucas, pois sem a sua contribuição a lista não estaria correta. 

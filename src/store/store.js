@@ -24,8 +24,7 @@ const store = new Vuex.Store({
     },
 
     async deletePost ({ state, dispatch, commit }, post) {
-      console.log('post', post)
-      await Api().delete('posts' + post._id)
+      await Api().delete(`posts/${post._id}`)
       return dispatch('loadPostsList', { commit })
     }
 

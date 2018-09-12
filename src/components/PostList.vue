@@ -27,15 +27,17 @@ import { mapGetters, mapActions } from 'vuex'
 export default {
   name: 'PostList',
 
-  computed: {
-    ...mapGetters({ postList: 'getPostsList' })
-  },
-
   // computed: {
-  //   postList () {
-  //     return this.$store.getters.getPostsList
-  //   }
+  //   ...mapGetters([] 'getPostsList' ])
   // },
+  computed: {
+    ...mapGetters([ 'getPostsList' ]),
+
+    postList () {
+      let list = this.getPostsList
+      return list.reverse()
+    }
+  },
 
   methods: {
     ...mapActions(['deletePost']),
@@ -82,6 +84,7 @@ export default {
 }
 
 .post-box-content {
+  word-wrap: break-word;
   text-align: left;
   background-color: #f3dfff;
   border-radius: 6px;
