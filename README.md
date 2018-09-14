@@ -389,7 +389,7 @@ $ npm i element-ui -S
 $ npm install
 ```
 
-Após incluir o Element, vamos criar um elemento para incluir novos posts. Esse componente terá um campo para incluir o conteúdo do post e um botão para enviar o post para a API. Vamos usar o Element para criar o campo de `input`. Primeiro, vamos criar um arquivo chamado `NewPost.vue` dentro da pasta components e adicionar o seguinte código: 
+Após incluir o Element, vamos criar um elemento para incluir novos posts. Esse componente terá um campo para incluir o conteúdo do post e um botão para enviar o post para a API. Vamos usar o Element para criar o campo de `input`. Primeiro, vamos criar um arquivo chamado `NewPost.vue` dentro da pasta components e adicionar o seguinte código:
 
 ```js
 <template>
@@ -493,9 +493,9 @@ export default {
 
 ```
 
-Em seguida, vamos alterar o arquivo ``Posts.vue`` para incluir o componente. Antes de incluir o novo componente, note que o código desse arquivo pode ser melhorado, separando dois componentes: NewPost que terá o código responsável por criar novos posts e PostList, posicionado logo abaixo para listar todos os posts existentes. Fazendo essas alterações, teremos o seguinte código dentro de ``Posts.vue``: 
+Em seguida, vamos alterar o arquivo ``Posts.vue`` para incluir o componente. Antes de incluir o novo componente, note que o código desse arquivo pode ser melhorado, separando dois componentes: NewPost que terá o código responsável por criar novos posts e PostList, posicionado logo abaixo para listar todos os posts existentes. Fazendo essas alterações, teremos o seguinte código dentro de ``Posts.vue``:
 
-```js 
+```js
 <template>
   <div>
     <h1>Posts</h1>
@@ -521,7 +521,7 @@ export default {
 
 ```
 
-Antes de executar, vamos criar o componente ``PostList`` que terá o front-end da lista de posts. Vamos criar um arquivo com o nome `PostList.vue` com o seguinte código: 
+Antes de executar, vamos criar o componente ``PostList`` que terá o front-end da lista de posts. Vamos criar um arquivo com o nome `PostList.vue` com o seguinte código:
 
 ```js
 
@@ -625,8 +625,8 @@ export default {
 
 ```
 
-Para remover um post, devemos adicionar o seguinte método ao arquivo `PostList.vue`: 
-```js 
+Para remover um post, devemos adicionar o seguinte método ao arquivo `PostList.vue`:
+```js
 methods: {
     ...mapActions(['deletePost']),
 
@@ -636,16 +636,23 @@ methods: {
   }
 ```
 
-E dentro do arquivo `store.js`, a seguinte action: 
+E dentro do arquivo `store.js`, a seguinte action:
 
-```js 
+```js
 async deletePost ({ state, dispatch, commit }, post) {
       await Api().delete(`posts/${post._id}`)
       return dispatch('loadPostsList', { commit })
     }
 ```
 
-Com isso, podemos adicionar e agora remover posts! 
+Com isso, podemos adicionar e agora remover posts!
+
+## Melhorando o Front-end
+Primeiro, vamos instalar e adicionar o Bootstrap para Vue:
+```sh
+$ npm i bootstrap-vue --save
+```
+
 
 ## Outros links interessantes:
 Abaixo você encontra alguns links interessantes sobre Vue e alguns recursos adicionais.
@@ -670,6 +677,7 @@ Abaixo você encontra alguns links interessantes sobre Vue e alguns recursos adi
 
 * [Curso completo sobre Vue.js](https://www.udemy.com/vuejs-2-the-complete-guide/)
 
+* [Bootstrap para Vue]()
 ### Outros links
 
 * [CSS Tricks](https://css-tricks.com/)
@@ -678,4 +686,4 @@ Abaixo você encontra alguns links interessantes sobre Vue e alguns recursos adi
 
 # Agradecimentos
 
-Obrigada Lucas, pois sem a sua contribuição a lista não estaria correta. 
+Obrigada Lucas, pois sem a sua contribuição a lista não estaria correta.

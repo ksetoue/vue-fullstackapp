@@ -11,12 +11,18 @@
       @keydown.native="newCommentKeyDown($event)"
     ></el-input>
     <div class="wrapper__button">
-      <el-button
+      <b-button
+        :variant="primary"
+        @click="addPost()"
+      >
+        Enviar
+      </b-button>
+      <!-- <el-button
           class="wrapper__button-send"
           type="primary"
           slot="append"
           @click="addPost()"
-      >Enviar</el-button>
+      >Enviar</el-button> -->
     </div>
   </div>
 
@@ -60,6 +66,17 @@ export default {
 }
 </script>
 <style>
+.btn-secondary {
+    color: #fff;
+    background-color: #8032e6;
+    border-color: #8032e6;
+}
+.btn-secondary:hover {
+    color: #fff;
+    background-color: #5e00d8;
+    border-color: #5e00d8;
+}
+
 .post-wrapper {
   display: flex;
   padding: 5px;
