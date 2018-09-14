@@ -1,6 +1,19 @@
 <template>
   <div class="post-list">
     <div
+      v-for="post in postList"
+      :key="post._id"
+    >
+      <b-card>
+        <b-media>
+          <b-img slot="aside" blank blank-color="#ccc" width="64" alt="placeholder" />
+          <h5 class="mt-0" v-text="post.user"></h5>
+          <p v-text="post.content"></p>
+        </b-media>
+      </b-card>
+    </div>
+
+    <!-- <div
       class="post-box"
       v-for="post in postList"
       :key="post._id"
@@ -17,12 +30,14 @@
             @click="removePost(post)"
         >Remover</el-button>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 export default {
   name: 'PostList',
@@ -50,12 +65,22 @@ export default {
 }
 </script>
 <style>
-.post-list {
-  display: flex;
-  flex-direction: column;
+.card {
+  margin-left: 580px;
+  margin-right: 580px;
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
-.post-box {
+.media {
+  text-align: left;
+}
+/* .post-list {
+  /* display: flex;
+  flex-direction: column; */
+/* } */
+
+/* .post-box {
   flex: flex-grow;
   padding: 10px;
   display: flex;
@@ -94,6 +119,6 @@ export default {
 
 .post-box-user {
   align-content: flex-start;
-}
+} */
 
 </style>

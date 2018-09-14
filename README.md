@@ -645,6 +645,7 @@ async deletePost ({ state, dispatch, commit }, post) {
     }
 ```
 
+Com isso, podemos adicionar e agora remover posts! 
 
 ## Outros links interessantes:
 Abaixo você encontra alguns links interessantes sobre Vue e alguns recursos adicionais.
