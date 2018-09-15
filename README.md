@@ -11,7 +11,7 @@ $ npm start
 
 ## Introdução
 
-Neste curso vamos explorar o [Vue.js]() e os principais componentes desse framework para que você possa desenvolver seus próprios projetos usando Vue.
+Neste curso vamos explorar o [Vue.js](https://vuejs.org/) e os principais componentes desse framework para que você possa desenvolver seus próprios projetos usando Vue.
 
 ### O que veremos nesse curso?
 
@@ -45,7 +45,12 @@ Dependendo da empresa/equipe a metodologia utilizada durante o desenvolvimento p
 ### Descrição da aplicação:
 > Nossa aplicação será um site que permite postar mensagens, que são exibidas em um feed para qualquer usuário que tenha acesso à página.
 
-No caso da nossa aplicação (que é semelhante ao Tweeter), para simplificar a implementação da primeira versão, não vamos centralizar as postagens nos usuários. No entanto, você pode ver abaixo os requisitos completos da aplicação:
+No caso da nossa aplicação (que é semelhante ao Twitter), para simplificar a implementação da primeira versão, não vamos centralizar as postagens nos usuários. No entanto, você pode ver abaixo os requisitos completos da aplicação:
+
+### Arquitetura
+<p align="center">
+  <img src="https://i.imgur.com/9o8uFv5.jpg" width="350" title="arquitetura do sistema">
+</p>
 
 ### Site - Front-end
 

@@ -69,8 +69,8 @@ export default {
 </script>
 <style>
 .card {
-  margin-left: 580px;
-  margin-right: 580px;
+  margin-left: 400px;
+  margin-right: 400px;
   margin-bottom: 10px;
   margin-top: 10px;
 }
