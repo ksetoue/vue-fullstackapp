@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h1>Posts</h1>
-    This file will list all the posts.
     <new-post></new-post>
     <post-list></post-list>
   </div>

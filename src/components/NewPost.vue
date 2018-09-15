@@ -12,7 +12,6 @@
     ></el-input>
     <div class="wrapper__button">
       <b-button
-        :variant="primary"
         @click="addPost()"
       >
         Enviar

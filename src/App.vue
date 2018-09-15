@@ -1,14 +1,28 @@
 <template>
   <div id="app">
+    <navbar :icon="image"></navbar>
     <router-view/>
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
+import Navbar from './components/NavBar.vue'
+import image from './assets/trash-dove.png'
 
 export default {
   name: 'App',
+
+  components: {
+    Navbar
+  },
+
+  data () {
+    return {
+      image: image
+    }
+  },
+
   computed: mapState([
     'posts'
   ]),
@@ -22,12 +36,14 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css?family=Poppins|Roboto');
+
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  margin-top: 0px;
+  font-family: 'Roboto', 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 </style>
