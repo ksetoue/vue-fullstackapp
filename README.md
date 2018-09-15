@@ -280,7 +280,6 @@ const store = new Vuex.Store({
   state: {
     posts: []
   },
-
   actions: {
     loadPostsList: function ({ commit }) {
       Api().get('/posts')
@@ -289,12 +288,23 @@ const store = new Vuex.Store({
             console.log(err)
           })
         })
+    },
+
+    async createPost ({ state, dispatch, commit }, newPostInfo) {
+      await Api().post('posts', { user: newPostInfo.user, title: 'title', content: newPostInfo.content })
+      return dispatch('loadPostsList', { commit })
+    },
+
+    async deletePost ({ state, dispatch, commit }, post) {
+      await Api().delete(`posts/${post._id}`)
+      return dispatch('loadPostsList', { commit })
     }
+
   },
 
   mutations: {
     SET_POSTS_LIST: (state, { list }) => {
-      state.posts = list
+      state.posts = list.data
     }
   },
 
@@ -322,23 +332,56 @@ Pronto! Criamos nosso arquivo para manipular os dados no Vuex. Agora, precisamos
 Seu `main.js` deve ficar semelhante a:
 
 ```js
-// The Vue build version to load with the `import` command
-// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import Vue from 'vue'
-import App from './App'
-import router from './router'
-import store from './store/store'
+<template>
+  <div id="app">
+    <navbar :icon="image"></navbar>
+    <router-view/>
+  </div>
+</template>
 
-Vue.config.productionTip = false
+<script>
+import { mapState } from 'vuex'
+import Navbar from './components/NavBar.vue'
+import image from './assets/trash-dove.png'
 
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  router,
-  store,
-  components: { App },
-  template: '<App/>'
-})
+export default {
+  name: 'App',
+
+  components: {
+    Navbar
+  },
+
+  data () {
+    return {
+      image: image
+    }
+  },
+
+  computed: mapState([
+    'posts'
+  ]),
+
+  async beforeMount () {
+    const dispatch = this.$store.dispatch
+    dispatch('loadPostsList')
+    console.log(this.$store.state.posts)
+  }
+}
+</script>
+
+<style>
+@import url('https://fonts.googleapis.com/css?family=Poppins|Roboto');
+
+#app {
+  margin-top: 0px;
+  font-family: 'Roboto', 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
+</style>
+
 ```
 
 Como precisamos carregar os posts antes de exibí-los na tela, vamos chamar os metodos do store antes de montar o componente ``App.vue``. Isso é necessário para que os dados sejam carregados corretamente, visto que a requisição feita na API é assincrona e para evitar problemas como carregar a lista antes que os dados estejam na instância, vamos fazer isso durante a montagem do componente principal. Seu arquivo `App.vue` deve ficar parecido com:
@@ -658,6 +701,425 @@ Primeiro, vamos instalar e adicionar o Bootstrap para Vue:
 $ npm i bootstrap-vue --save
 ```
 
+#NewPost.vue :
+
+```js
+<template>
+  <div class="post-wrapper">
+    <el-input
+      class="el-textarea"
+      type="textarea"
+      resize="none"
+      :autosize="{ minRows: 2, maxRows: 2 }"
+      :rows="1"
+      :placeholder="formatPlaceholder"
+      v-model="content"
+      @keydown.native="newCommentKeyDown($event)"
+    ></el-input>
+    <div class="wrapper__button">
+      <b-button
+        @click="addPost()"
+      >
+        Enviar
+      </b-button>
+      <!-- <el-button
+          class="wrapper__button-send"
+          type="primary"
+          slot="append"
+          @click="addPost()"
+      >Enviar</el-button> -->
+    </div>
+  </div>
+
+</template>
+<script>
+import { mapActions } from 'vuex'
+
+export default {
+  name: 'NewPost',
+
+  computed: {
+    formatPlaceholder () {
+      return `${this.user}, diga o que está pensando`
+    }
+  },
+
+  data () {
+    return {
+      user: 'karol',
+      title: '',
+      content: ''
+    }
+  },
+
+  methods: {
+    ...mapActions(['createPost']),
+
+    addPost () {
+      let newPost = {
+        user: this.user,
+        title: this.title,
+        content: this.content
+      }
+      this.createPost(newPost)
+    },
+
+    newCommentKeyDown () {
+
+    }
+  }
+}
+</script>
+<style>
+.btn-secondary {
+    color: #fff;
+    background-color: #8032e6;
+    border-color: #8032e6;
+}
+.btn-secondary:hover {
+    color: #fff;
+    background-color: #5e00d8;
+    border-color: #5e00d8;
+}
+
+.post-wrapper {
+  display: flex;
+  padding: 5px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.el-textarea {
+  padding: 5px;
+}
+.el-textarea__inner {
+    width: 660px;
+    border-radius: 6px;
+    padding: 8px 15px;
+    overflow: hidden;
+  }
+
+.el-textarea__inner:focus {
+  border-color: #8215c5;
+}
+
+.wrapper__button {
+  padding: 5px;
+  align-self: center;
+}
+
+.wrapper__button-send {
+  border-radius: 6px;
+  border-style: solid;
+  background-color: #8215c5;
+  border-color:#8215c5;
+  color: #ffffff;
+}
+
+</style>
+
+```
+
+NavBar.vue
+```js
+<template>
+  <b-navbar toggleable="md" type="dark" variant="info">
+  <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
+
+  <b-navbar-brand href="#"
+    class="logo"
+  >
+      <img
+        src="../assets/trash-dove.png"
+        width="55"
+        height="55"
+        alt="BV">
+  </b-navbar-brand>
+
+  <b-navbar-brand class="app-name" href="#">
+    Tuíto
+  </b-navbar-brand>
+
+  <b-collapse is-nav id="nav_collapse">
+
+    <!-- Right aligned nav items -->
+    <b-navbar-nav class="ml-auto">
+
+      <b-nav-form>
+        <b-form-input size="sm" class="mr-sm-2" type="text" placeholder="Search"/>
+        <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
+      </b-nav-form>
+
+      <b-nav-item-dropdown text="Lang" right>
+        <b-dropdown-item href="#">EN</b-dropdown-item>
+        <b-dropdown-item href="#">ES</b-dropdown-item>
+        <b-dropdown-item href="#">RU</b-dropdown-item>
+        <b-dropdown-item href="#">FA</b-dropdown-item>
+      </b-nav-item-dropdown>
+
+      <b-nav-item-dropdown right>
+        <!-- Using button-content slot -->
+        <template slot="button-content">
+          <em>User</em>
+        </template>
+        <b-dropdown-item href="#">Profile</b-dropdown-item>
+        <b-dropdown-item href="#">Signout</b-dropdown-item>
+      </b-nav-item-dropdown>
+    </b-navbar-nav>
+
+  </b-collapse>
+  </b-navbar>
+</template>
+
+<script>
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+export default {
+  name: 'navbar',
+
+  props: [
+    'icon'
+  ]
+}
+</script>
+
+<style>
+@import url('https://fonts.googleapis.com/css?family=Poppins|Roboto');
+
+.app-name {
+  font-family: 'Poppins';
+  font-size: 28;
+}
+
+.logo {
+  background: white;
+  border-radius: 12px;
+}
+.bg-info {
+    background-color: #8135b1 !important;
+}
+</style>
+
+```
+
+# PostList.vue
+```js
+<template>
+  <div class="post-list">
+    <div
+      v-for="post in postList"
+      :key="post._id"
+    >
+      <b-card>
+        <b-media>
+          <b-img slot="aside" blank blank-color="#ccc" width="64" alt="placeholder" />
+          <h5 class="mt-0" v-text="post.user"></h5>
+          <p v-text="post.content"></p>
+        </b-media>
+        <div class="btn-card">
+          <b-button size="sm" class="my-2 my-sm-0" type="submit">Remover</b-button>
+        </div>
+      </b-card>
+    </div>
+
+    <!-- <div
+      class="post-box"
+      v-for="post in postList"
+      :key="post._id"
+    >
+      <p class="post-box-content" v-text="post.content"></p>
+
+      <div class="post-session">
+        <div class="post-box-user">
+          <span v-text="post.user"></span>
+        </div>
+        <el-button
+            class="remove-post"
+            type="primary"
+            @click="removePost(post)"
+        >Remover</el-button>
+      </div>
+    </div> -->
+  </div>
+</template>
+
+<script>
+import { mapGetters, mapActions } from 'vuex'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+export default {
+  name: 'PostList',
+
+  // computed: {
+  //   ...mapGetters([] 'getPostsList' ])
+  // },
+  computed: {
+    ...mapGetters([ 'getPostsList' ]),
+
+    postList () {
+      let list = this.getPostsList
+      return list.reverse()
+    }
+  },
+
+  methods: {
+    ...mapActions(['deletePost']),
+
+    removePost (post) {
+      console.log(post)
+      this.deletePost(post)
+    }
+  }
+}
+</script>
+<style>
+.card {
+  margin-left: 400px;
+  margin-right: 400px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.media {
+  text-align: left;
+}
+
+.btn-card {
+  margin: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+/* .post-list {
+  /* display: flex;
+  flex-direction: column; */
+/* } */
+
+/* .post-box {
+  flex: flex-grow;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
+  margin: 17px;
+  margin-right: 109px;
+  margin-left: 109px;
+  color: #414141;
+  background: #f5e4ff85;
+  padding: 9px;
+}
+
+.remove-post {
+  border-radius: 6px;
+  border-style: solid;
+  background-color: #8215c5;
+  border-color:#8215c5;
+  color: #ffffff;
+}
+
+.post-session {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.post-box-content {
+  word-wrap: break-word;
+  text-align: left;
+  background-color: #f3dfff;
+  border-radius: 6px;
+  height: 100px;
+  padding: 14px;
+}
+
+.post-box-user {
+  align-content: flex-start;
+} */
+
+</style>
+
+```
+
+# Post.vue
+
+```js
+<template>
+  <div>
+    <new-post></new-post>
+    <post-list></post-list>
+  </div>
+</template>
+
+<script>
+import NewPost from './NewPost.vue'
+import PostList from './PostList.vue'
+
+export default {
+  name: 'posts',
+
+  components: {
+    NewPost,
+    PostList
+  }
+}
+</script>
+
+```
+
+# App.vue
+```js
+<template>
+  <div id="app">
+    <navbar :icon="image"></navbar>
+    <router-view/>
+  </div>
+</template>
+
+<script>
+import { mapState } from 'vuex'
+import Navbar from './components/NavBar.vue'
+import image from './assets/trash-dove.png'
+
+export default {
+  name: 'App',
+
+  components: {
+    Navbar
+  },
+
+  data () {
+    return {
+      image: image
+    }
+  },
+
+  computed: mapState([
+    'posts'
+  ]),
+
+  async beforeMount () {
+    const dispatch = this.$store.dispatch
+    dispatch('loadPostsList')
+    console.log(this.$store.state.posts)
+  }
+}
+</script>
+
+<style>
+@import url('https://fonts.googleapis.com/css?family=Poppins|Roboto');
+
+#app {
+  margin-top: 0px;
+  font-family: 'Roboto', 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
+</style>
+
+```
 
 ## Outros links interessantes:
 Abaixo você encontra alguns links interessantes sobre Vue e alguns recursos adicionais.
