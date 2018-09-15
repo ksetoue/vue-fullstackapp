@@ -10,6 +10,9 @@
           <h5 class="mt-0" v-text="post.user"></h5>
           <p v-text="post.content"></p>
         </b-media>
+        <div class="btn-card">
+          <b-button size="sm" class="my-2 my-sm-0" type="submit">Remover</b-button>
+        </div>
       </b-card>
     </div>
 
@@ -74,6 +77,12 @@ export default {
 
 .media {
   text-align: left;
+}
+
+.btn-card {
+  margin: 10px;
+  display: flex;
+  justify-content: flex-end;
 }
 /* .post-list {
   /* display: flex;

@@ -34,7 +34,7 @@ export default {
 
   computed: {
     formatPlaceholder () {
-      return `Add new comment`
+      return `${this.user}, diga o que está pensando`
     }
   },
 
@@ -80,7 +80,7 @@ export default {
   display: flex;
   padding: 5px;
   justify-content: center;
-
+  margin-top: 20px;
 }
 
 .el-textarea {
