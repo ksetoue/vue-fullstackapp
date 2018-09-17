@@ -97,121 +97,316 @@ Para este curso, faremos os itens 1 e 4 dos requisitos do Site. A API - Versão 
 O Vue.js é baseado no conceito de Virtual DOM, que consiste em uma representação da árvore do DOM em forma de objeto. Dentro de um framework de Javascript, isso facilita a manipulação de estruturas e alteração de dados dentro das estruturas estáticas. Para saber mais sobre o cliclo de vida das aplicações em Vue acesse esse [link](https://br.vuejs.org/v2/guide/instance.html).
 
 ## Criando o projeto
+1. Crie um repositório na sua conta do Github. [Siga os passos nesse link caso esteja fazendo isso pela primeira vez](https://help.github.com/articles/create-a-repo/)
 
-## adicionar parte sobre git <>
+2. [Clone o repositório localmente](https://help.github.com/articles/cloning-a-repository/)
 
-Antes de começar, certifique-se que você tem os seguintes pré-requisitos instalados:
+3. Instale:
+    * [node.js](https://nodejs.org/en/download/)
+    * [vue e vue-cli3](https://cli.vuejs.org/guide/installation.html)
+    * [instale o plugin para navegador do vuedevtools](https://github.com/vuejs/vue-devtools#installation)
 
-1. Nodejs
-
-Para testar se o node já está instalado no seu computador, bastar abrir uma janela do cmd ou terminal e digitar
-```sh
-$ node -v
-v8.11.4
-```
-
-Caso o comando acima não retorne a versão do node, siga as instruções no [link para instalar o node.js na versão 8 ou maior](https://nodejs.org/en/)
-
-2. Vue.js
-
-Para verificar a instalação do vue, basta testar o seguinte comando no cmd ou terminal:
-
-```sh
-$ vue --version
-2.9.3
-```
-
-Caso o vue não esteja instalado, você pode instalá-lo usando o NPM - gerenciador de pacotes do Node. Ou, se preferir, pode verificar o [tutorial no site do Vue](https://br.vuejs.org/v2/guide/installation.html).
-
-```sh
-# última versão estável
-$ npm install vue
-```
-
-Uma das ferramentas criadas para facilitar a criação de projetos em Vue, principalmente a estrutura inicial do projeto é o vue-cli, que possui templates de projeto. Para instalar o vue-cli, basta digitar os seguintes comandos no terminal ou cmd:
-
-```sh
-$ npm install -g @vue/cli
-```
-Lembrando que, caso você esteja criando um outro projeto basta substituir o nome `vue-app-curso` pelo nome do seu projeto.
-
-Agora, vá para a pasta onde deseja deixar o seu projeto e usando a linha de comando na pasta onde seu projeto ficará, digite:
+4. Dentro da pasta que você clonou do Github, crie o projeto usando o webpack template:
 
 ```sh
 $ vue init webpack .
 ```
-Após executar o comando acima, você encontrará uma tela semelhante a que está a seguir:
 
-> adicionar imagem aqui
+Após executar esse comando, selecione as opções como na imagem abaixo:
 
-Agora, temos que instalar as dependencias do node no projeto e rodar para ver se está tudo funcionando direitinho :)
+[Configuração do projeto](https://user-images.githubusercontent.com/13456109/45606147-05db3180-ba19-11e8-85d6-a551e233352e.PNG)
+
+Para testar se está tudo funcionando, rode os comandos abaixo e acesse http://localhost:8080 em seu navegador.
 
 ```sh
 $ npm install
 $ npm run dev
+# ou
+$ npm install
+$ npm start
 ```
 
-Após executar o `npm run dev`, vá até o seu navegador e digite `localhost:8080`. Você verá o seguinte resultado:
-
-> adicionar imagem aqui
-
-Pronto! Sua aplicação Vue já está no ar! :D
-
-### Explorando a estrutura do projeto
-
-> adicionar aqui descrição das pastas e arquivos
-
-### Criando o primeiro componente
-
-Primeiro, vamos adicionar o sass:
+5. Dentro da pasta do projeto, rode os seguintes comandos para instalar as dependencias:
 
 ```sh
-$ npm install --save-dev node-sass
+$ npm install vuex --save
+$ npm install axios --save
+$ npm install bootstrap-vue --save
+$ npm install element-ui --save
 ```
 
-Para criar o nosso primeiro componente, vá até a pasta `components` e crie um arquivo chamado `Posts.vue`. Adicione o seguinte código ao seu arquivo recém criado:
+### Estrutura do projeto
+
+Para separar os arquivos, vamos criar uma estrutura que separe por funcionalidade as nossas pastas. Dentro da pasta `src`, vamos criar uma pasta `api` e outra chamada `store`. Dentro da pasta api, teremos um arquivo chamado `api.js` onde colocaremos as chamadas do [axios](https://github.com/axios/axios). Dentro de store ficarão nossos arquivos referentes às implementações de [Vuex](https://vuex.vuejs.org/). Dentro da pasta store, vamos criar um arquivo chamado `store.js`.
+
+Dentro do arquivo `store.js`, vamos incluir o seguinte código:
+```js
+import Vue from 'vue'
+import Vuex from 'vuex'
+import Api from '../api/Api'
+
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+
+})
+
+export default store
+```
+
+Dentro da variável store, vamos adicionar nossas actions, mutations, getters e states:
 
 ```js
-<template>
-  <div class="posts">
-    <h1>Posts</h1>
-    This file will list all the posts.
+const store = new Vuex.Store({
+  state: { // guarda todos os estados que iremos gerenciar no vuex
+    posts: []
+  },
 
-    <div v-for="post in postsList" :key="post._id">
-      <p>
-        <span><b>User: {{ post.user }}</b></span><br />
-        <span>{{ post.content }}</span>
-      </p>
-    </div>
+  actions: { // acoes que serão disparadas pelo vue, para alterar o estado
+    loadPostsList: function ({ // carrega todos os posts da nossa API
+      commit
+    }) {
+      Api().get('/posts')
+        .then((response) => {
+          commit('SET_POSTS_LIST', {
+            list: response.data
+          }, (err) => {
+            console.log(err)
+          })
+        })
+    },
+
+    async createPost({ // Cria um novo post passando as informacoes dentro de um objeto chamado newPostInfo
+      state,
+      dispatch,
+      commit
+    }, newPostInfo) {
+      await Api().post('posts', {
+        user: newPostInfo.user,
+        title: 'title',
+        content: newPostInfo.content
+      })
+      return dispatch('loadPostsList', {
+        commit
+      })
+    },
+
+    async deletePost({ // remove um post da API, passando o id do post que deve ser removido
+      state,
+      dispatch,
+      commit
+    }, post) {
+      await Api().delete(`posts/${post._id}`)
+      return dispatch('loadPostsList', {
+        commit
+      })
+    }
+
+  },
+
+  mutations: { // mutations sao disparadas por actions e sao responsaveis por efetivamente mudar o estado das variaveis no vuex
+    SET_POSTS_LIST: (state, {
+      list
+    }) => {
+      state.posts = list.data
+    }
+  },
+
+  getters: { // getters sao responsaveis por pegar as informacoes do state
+    getPostsList: state => state.posts
+  }
+})
+```
+
+O código acima declara o uso do Vuex dentro do da instancia do Vue. Note que temos quatro objetos diferentes:
+
+- **state**: utilizado para guardar os estados
+- **actions**: utilizados para disparar ações que vão mutar os estados contidos em state
+- **mutations**: responsáveis por mutar os estados dentro de state
+- **getters**: retornam os estados
+
+No arquivo acima temos dentro de `state` a váriavel ``post`` que vai guardar o vetor com todos os posts retornados na API.
+Vamos usar a action  `loadPostsList` para disparar a função que chama a Api.js que criamos anteriormente, para chamar nossa API e guardar os posts dentro da variável no Vuex. Repare que a action dispara a mutation `SET_POSTS_LIST`, que é responsável por acessar `state.posts` e alterar o seu valor.
+
+Dentro de `api.js`, teremos:
+
+```js
+import axios from 'axios'
+
+export default () => {
+  return axios.create({
+    baseURL: `https://vue-api-curso.herokuapp.com/` // url da API
+  })
+}
+
+```
+
+Registre o store em `main.js`, incluindo o Vuex ao projeto e também o Element e o Bootstrap para Vue:
+
+```js
+// The Vue build version to load with the `import` command
+// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
+import Vue from 'vue'
+import App from './App'
+import router from './router'
+
+import BootstrapVue from 'bootstrap-vue'
+import ElementUI from 'element-ui'
+
+import store from './store/store'
+
+Vue.use(ElementUI)
+Vue.use(BootstrapVue)
+
+Vue.config.productionTip = false
+
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  router,
+  store,
+  components: { App },
+  template: '<App/>'
+})
+
+```
+
+E, para que uma primeira chamada na API seja feita, altere o conteúdo do ``App.vue``:
+```js
+<template>
+  <div id="app">
+    <img src="./assets/logo.png">
+    <router-view/>
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
+
 export default {
-  name: 'posts',
+  name: 'App',
+
   computed: mapState([
     'posts'
   ]),
 
-  data () {
-    return {
-      postsList: []
-    }
-  },
-
-  mounted () {
-    this.postsList = this.posts
+  async beforeMount () {
+    const dispatch = this.$store.dispatch
+    dispatch('loadPostsList')
+    console.log(this.$store.state.posts)
   }
+
+}
+</script>
+
+
+```
+
+
+
+
+### Criando o primeiro componente
+## Criando componentes
+Vamos criar nosso primeiro componente, no qual vamos mostrar a lista de posts. Dentro da pasta `components`, vamos criar um arquivo `Posts.vue`. Dentro do desse arquivo teremos a seguinte estrutura:
+
+```js
+<template>
+  <div>
+
+  </div>
+</template>
+
+<script>
+export default {
+
 }
 </script>
 
 <style>
+
 </style>
 
 ```
 
-Nosso projeto está usando rotas para acessar os arquivos, logo precisamos alterar o arquivo `router/index.js`:
+Dentro de template, vamos adicionar dois elementos, uma div que vai encapsular a lista de posts. Dentro dessa div teremos outra div com o elemento card do vue-bootstrap, que contém a formatação do post:
+
+```js
+<template>
+  <div>
+    <div
+      v-for="post in postList"
+      :key="post._id"
+    >
+      <b-card>
+        <b-media>
+          <img class="align-self-start" width="64" height="64" src="../assets/trash-dove.png" slot="aside" blank  alt="placeholder" />
+          <h5 class="mt-0" v-text="post.user"></h5>
+          <p v-text="post.content"></p>
+        </b-media>
+      </b-card>
+    </div>
+  </div>
+</template>
+```
+
+Dentro desse componente vamos adicionar também um botão para remover os posts, que utilizaremos posteriormente. Adicione na pasta `assets` uma imagem de sua preferencia e edite o caminho na tag de `img` em `src="../assets/trash-dove.png"`.
+
+```js
+<template>
+  <div>
+    <div
+      v-for="post in postList"
+      :key="post._id"
+    >
+      <b-card>
+        <b-media>
+          <img class="align-self-start" width="64" height="64" src="../assets/trash-dove.png" slot="aside" blank  alt="placeholder" />
+          <h5 class="mt-0" v-text="post.user"></h5>
+          <p v-text="post.content"></p>
+        </b-media>
+        <div class="btn-card">
+          <b-button size="sm" class="my-2 my-sm-0" type="submit">Remover</b-button>
+        </div>
+      </b-card>
+    </div>
+  </div>
+</template>
+```
+
+Agora que temos o template pronto, vamos adicionar os métodos necessários para mostrar todos os posts e ligá-lo ao template. Lembre-se de adicionar o campo `name: Posts` ao seu componente.
+Lembrando que vamos utilizar o getter que criamos dentro de store. Dentro de script, vamos importar `mapGetters` do vuex, além da lib do vue-bootstrap:
+
+```js
+<script>
+import { mapGetters } from 'vuex'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+export default {
+
+    name:'Posts'
+
+```
+
+Em seguida, vamos adicionar o método para carregar os posts do vuex:
+
+```js
+export default {
+  name: 'Posts',
+
+  computed: {
+    ...mapGetters([ 'getPostsList' ]),
+
+    postList () { // metodo que pega os posts do vuex
+      let list = this.getPostsList
+      return list.reverse()
+    }
+  },
+
+}
+```
+
+Vamos testar nossa aplicação, alterando a rota carregada. Vá até a pasta `router` e modifique o caminho da rota, adicionando `Posts` como rota principal:
 
 ```js
 import Vue from 'vue'
@@ -225,483 +420,94 @@ export default new Router({
   routes: [
     {
       path: '/',
-      // name: 'HelloWorld',
-      // component: HelloWorld
       name: 'Posts',
       component: Posts
     }
-    // {
-    //   path: '/posts',
-    //   name: 'Posts',
-    //   component: Posts
-    // }
   ]
 })
 
 ```
 
-Pronto! Isso fará com que o componente Post seja carregado na página inicial da sua aplicação!
+Execute o comandos ``npm run dev` no terminal e vá até http://localhost:8080 para testar. Você deve ter todos os posts listados na tela :)
 
-### Conectando a API
 
-Para fazer a conexão com o servidor, vamos utilizar uma biblioteca chamada `axios`. Execute o comando abaixo para adicioná-lo ao projeto.
+### Melhorando a divisão dos componentes
 
-```sh
-$ npm install axios --save
-```
-
-Após incluir o axios ao projeto, vamos criar dentro da pasta `src` uma nova pasta chamada `api`, onde ficarão nossos arquivos de conexão com a API em node. Dentro da pasta `src/api` vamos criar um arquivo chamado `api.js`.
-
-Nele, vamos adicionar o seguinte código:
-
-```js
-import axios from 'axios'
-
-export default() => {
-  return axios.create({
-    baseURL: `https://vue-api-curso.herokuapp.com/`
-  })
-}
-```
-
-Esse código adiciona a url da nossa API no axios, e vai facilitar o uso dela em outros lugares do código. Feito isso, vamos testar se nossa API está funcionando, e se conseguimos pegar todos os posts existentes até então!
-
-Para guardas as informações da API dentro da instância do Vue, nós vamos utilizar uma lib chamada [Vuex](), usada para gerenciar estados.
-
-Para deixar nosso projeto organizado, vamos criar dentro da pasta `src` uma pasta chamada `store`. Dentro dessa pasta, criaremos um arquivo `store.js`, no qual vamos adicionar o seguinte código:
-```js
-import Vue from 'vue'
-import Vuex from 'vuex'
-import Api from '../api/Api'
-
-Vue.use(Vuex)
-
-const store = new Vuex.Store({
-  state: {
-    posts: []
-  },
-  actions: {
-    loadPostsList: function ({ commit }) {
-      Api().get('/posts')
-        .then((response) => {
-          commit('SET_POSTS_LIST', { list: response.data }, (err) => {
-            console.log(err)
-          })
-        })
-    },
-
-    async createPost ({ state, dispatch, commit }, newPostInfo) {
-      await Api().post('posts', { user: newPostInfo.user, title: 'title', content: newPostInfo.content })
-      return dispatch('loadPostsList', { commit })
-    },
-
-    async deletePost ({ state, dispatch, commit }, post) {
-      await Api().delete(`posts/${post._id}`)
-      return dispatch('loadPostsList', { commit })
-    }
-
-  },
-
-  mutations: {
-    SET_POSTS_LIST: (state, { list }) => {
-      state.posts = list.data
-    }
-  },
-
-  getters: {
-    getPostsList: state => state.posts
-  }
-})
-
-export default store
-
-```
-
-O código acima declara o uso do Vuex dentro do da instancia do Vue. Note que temos quatro objetos diferentes:
-
-- state: utilizado para guardar os estados
-- actions: utilizados para disparar ações que vão mutar os estados contidos em state
-- mutations: responsáveis por mutar os estados dentro de state
-- getters: retornam os estados
-
-No arquivo acima temos dentro de `state` a váriavel ``post`` que vai guardar o vetor com todos os posts retornados na API.
-Vamos usar a action  `loadPostsList` para disparar a função que chama a Api.js que criamos anteriormente, para chamar nossa API e guardar os posts dentro da variável no Vuex. Repare que a action dispara a mutation `SET_POSTS_LIST`, que é responsável por acessar `state.posts` e alterar o seu valor.
-
-Pronto! Criamos nosso arquivo para manipular os dados no Vuex. Agora, precisamos incluí-lo no main.js e no App.vue. Faremos isso para que o Vue reconheça que estamos usando esse arquivo `store` e possa acessar os itens declarados no Vuex.
-
-Seu `main.js` deve ficar semelhante a:
-
-```js
-<template>
-  <div id="app">
-    <navbar :icon="image"></navbar>
-    <router-view/>
-  </div>
-</template>
-
-<script>
-import { mapState } from 'vuex'
-import Navbar from './components/NavBar.vue'
-import image from './assets/trash-dove.png'
-
-export default {
-  name: 'App',
-
-  components: {
-    Navbar
-  },
-
-  data () {
-    return {
-      image: image
-    }
-  },
-
-  computed: mapState([
-    'posts'
-  ]),
-
-  async beforeMount () {
-    const dispatch = this.$store.dispatch
-    dispatch('loadPostsList')
-    console.log(this.$store.state.posts)
-  }
-}
-</script>
-
-<style>
-@import url('https://fonts.googleapis.com/css?family=Poppins|Roboto');
-
-#app {
-  margin-top: 0px;
-  font-family: 'Roboto', 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-</style>
-
-```
-
-Como precisamos carregar os posts antes de exibí-los na tela, vamos chamar os metodos do store antes de montar o componente ``App.vue``. Isso é necessário para que os dados sejam carregados corretamente, visto que a requisição feita na API é assincrona e para evitar problemas como carregar a lista antes que os dados estejam na instância, vamos fazer isso durante a montagem do componente principal. Seu arquivo `App.vue` deve ficar parecido com:
-
-```js
-<template>
-  <div id="app">
-    <router-view/>
-  </div>
-</template>
-
-<script>
-import { mapState } from 'vuex'
-
-export default {
-  name: 'App',
-  computed: mapState([
-    'posts'
-  ]),
-
-  async beforeMount () {
-    const dispatch = this.$store.dispatch
-    dispatch('loadPostsList')
-  }
-}
-</script>
-
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
-
-```
-
-Até o momento, a tela da sua aplicação deve ser semelhante a seguinte:
-
-> adicionar imagem da aplicação (primeiro-post)
-
-### Alterando o Front-end
-
-Agora que conseguimos acessar os posts na API, vamos formatar a visualização. Uma biblioteca legal de se trabalhar para manipular componentes em Vue é o [element](https://element.eleme.io). Vamos utilizar ele aqui para alterar nosso front-end.
-
-Para adicionar o ``element`` ao seu projeto, execute o seguinte comando no cmd:
-
-```sh
-$ npm i element-ui -S
-$ npm install
-```
-
-Após incluir o Element, vamos criar um elemento para incluir novos posts. Esse componente terá um campo para incluir o conteúdo do post e um botão para enviar o post para a API. Vamos usar o Element para criar o campo de `input`. Primeiro, vamos criar um arquivo chamado `NewPost.vue` dentro da pasta components e adicionar o seguinte código:
-
-```js
-<template>
-  <div class="post-wrapper">
-    <el-input
-      class="el-textarea"
-      type="textarea"
-      resize="none"
-      :autosize="{ minRows: 2, maxRows: 2 }"
-      :rows="1"
-      :placeholder="formatPlaceholder"
-      v-model="content"
-      @keydown.native="newCommentKeyDown($event)"
-    ></el-input>
-    <div class="wrapper__button">
-      <el-button
-          class="wrapper__button-send"
-          type="primary"
-          slot="append"
-          @click="addPost()"
-      >Enviar</el-button>
-    </div>
-  </div>
-
-</template>
-<script>
-import { mapActions } from 'vuex'
-
-export default {
-  name: 'NewPost',
-
-  computed: {
-    formatPlaceholder () {
-      return `Add new comment`
-    }
-  },
-
-  data () {
-    return {
-      user: 'karol',
-      title: '',
-      content: ''
-    }
-  },
-
-  methods: {
-    ...mapActions(['createPost']),
-
-    addPost () {
-      let newPost = {
-        user: this.user,
-        title: this.title,
-        content: this.content
-      }
-      this.createPost(newPost)
-    },
-
-    newCommentKeyDown () {
-
-    }
-  }
-}
-</script>
-<style>
-.post-wrapper {
-  display: flex;
-  padding: 5px;
-  justify-content: center;
-
-}
-
-.el-textarea {
-  padding: 5px;
-}
-.el-textarea__inner {
-    width: 660px;
-    border-radius: 6px;
-    padding: 8px 15px;
-    overflow: hidden;
-  }
-
-.el-textarea__inner:focus {
-  border-color: #8215c5;
-}
-
-.wrapper__button {
-  padding: 5px;
-  align-self: center;
-}
-
-.wrapper__button-send {
-  border-radius: 6px;
-  border-style: solid;
-  background-color: #8215c5;
-  border-color:#8215c5;
-  color: #ffffff;
-}
-
-</style>
-
-
-```
-
-Em seguida, vamos alterar o arquivo ``Posts.vue`` para incluir o componente. Antes de incluir o novo componente, note que o código desse arquivo pode ser melhorado, separando dois componentes: NewPost que terá o código responsável por criar novos posts e PostList, posicionado logo abaixo para listar todos os posts existentes. Fazendo essas alterações, teremos o seguinte código dentro de ``Posts.vue``:
+Agora, vamos incluir um componente para inserir o texto dos novos posts e submeter o post para a API.
+Antes, note que os posts listados podem ser separados em um único componente! Para isso, vamos criar um arquivo `SinglePost.vue` e dentro dele adicionar o código do card:
 
 ```js
 <template>
   <div>
-    <h1>Posts</h1>
-    This file will list all the posts.
-    <new-post></new-post>
-    <post-list></post-list>
-  </div>
-</template>
-
-<script>
-import NewPost from './NewPost.vue'
-import PostList from './PostList.vue'
-
-export default {
-  name: 'posts',
-
-  components: {
-    NewPost,
-    PostList
-  }
-}
-</script>
-
-```
-
-Antes de executar, vamos criar o componente ``PostList`` que terá o front-end da lista de posts. Vamos criar um arquivo com o nome `PostList.vue` com o seguinte código:
-
-```js
-
-<template>
-  <div class="post-list">
     <div
-      class="post-box"
       v-for="post in postList"
       :key="post._id"
     >
-      <p class="post-box-content" v-text="post.content"></p>
-
-      <div class="post-session">
-        <div class="post-box-user">
-          <span v-text="post.user"></span>
+      <b-card>
+        <b-media>
+          <img class="align-self-start" width="64" height="64" src="../assets/trash-dove.png" slot="aside" blank  alt="placeholder" />
+          <h5 class="mt-0" v-text="post.user"></h5>
+          <p v-text="post.content"></p>
+        </b-media>
+        <div class="btn-card">
+          <b-button size="sm" class="my-2 my-sm-0" type="submit">Remover</b-button>
         </div>
-        <el-button
-            class="remove-post"
-            type="primary"
-            @click="removePost(post)"
-        >Remover</el-button>
-      </div>
+      </b-card>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 export default {
-  name: 'PostList',
+  name: 'SinglePost',
 
-  // computed: {
-  //   ...mapGetters([] 'getPostsList' ])
-  // },
   computed: {
     ...mapGetters([ 'getPostsList' ]),
 
-    postList () {
+    postList () { // metodo que pega os posts do vuex
       let list = this.getPostsList
       return list.reverse()
     }
   },
-
-  methods: {
-    ...mapActions(['deletePost']),
-
-    removePost (post) {
-      this.deletePost(post)
-    }
-  }
 }
 </script>
+
+```
+
+Vamos importar o novo componente dentro de Posts, removendo o conteúdo anterior, que agora está no novo `componente`:
+```js
+<template>
+  <div>
+    <single-post></single-post>
+  </div>
+</template>
+
+<script>
+import SinglePost from './SinglePost'
+
+export default {
+  name: 'Posts',
+
+  components: {
+    SinglePost
+  }
+
+}
+</script>
+
 <style>
-.post-list {
-  display: flex;
-  flex-direction: column;
-}
+.align-self-start {
 
-.post-box {
-  flex: flex-grow;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  border-radius: 5px;
-  margin: 17px;
-  margin-right: 109px;
-  margin-left: 109px;
-  color: #414141;
-  background: #f5e4ff85;
-  padding: 9px;
 }
-
-.remove-post {
-  border-radius: 6px;
-  border-style: solid;
-  background-color: #8215c5;
-  border-color:#8215c5;
-  color: #ffffff;
-}
-
-.post-session {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-.post-box-content {
-  text-align: left;
-  background-color: #f3dfff;
-  border-radius: 6px;
-  height: 100px;
-  padding: 14px;
-}
-
-.post-box-user {
-  align-content: flex-start;
-}
-
 </style>
 
 ```
 
-Para remover um post, devemos adicionar o seguinte método ao arquivo `PostList.vue`:
-```js
-methods: {
-    ...mapActions(['deletePost']),
-
-    removePost (post) {
-      this.deletePost(post)
-    }
-  }
-```
-
-E dentro do arquivo `store.js`, a seguinte action:
-
-```js
-async deletePost ({ state, dispatch, commit }, post) {
-      await Api().delete(`posts/${post._id}`)
-      return dispatch('loadPostsList', { commit })
-    }
-```
-
-Com isso, podemos adicionar e agora remover posts!
-
-## Melhorando o Front-end
-Primeiro, vamos instalar e adicionar o Bootstrap para Vue:
-```sh
-$ npm i bootstrap-vue --save
-```
-
-#NewPost.vue :
+Agora, vamos criar um componente chamado NewPost, criando um arquivo ``NewPost.vue``. Note que, para criar o post estamos usando o Element, que é outra lib com componentes prontos para vue. Aqui, a chamada do @click do botão no componente chama a action que criamos no store, a `createPost`, passando as informações de `data()`. Para alterar o usuário que irá aparecer na API, altere o campo `user`, dentro de `data ()`:
 
 ```js
 <template>
@@ -714,7 +520,6 @@ $ npm i bootstrap-vue --save
       :rows="1"
       :placeholder="formatPlaceholder"
       v-model="content"
-      @keydown.native="newCommentKeyDown($event)"
     ></el-input>
     <div class="wrapper__button">
       <b-button
@@ -722,12 +527,6 @@ $ npm i bootstrap-vue --save
       >
         Enviar
       </b-button>
-      <!-- <el-button
-          class="wrapper__button-send"
-          type="primary"
-          slot="append"
-          @click="addPost()"
-      >Enviar</el-button> -->
     </div>
   </div>
 
@@ -762,10 +561,6 @@ export default {
         content: this.content
       }
       this.createPost(newPost)
-    },
-
-    newCommentKeyDown () {
-
     }
   }
 }
@@ -820,7 +615,42 @@ export default {
 
 ```
 
-NavBar.vue
+E adicionar o componente a Posts:
+```js
+<template>
+  <div>
+    <new-post></new-post>
+    <single-post></single-post>
+  </div>
+</template>
+
+<script>
+import SinglePost from './SinglePost'
+import NewPost from './NewPost'
+
+export default {
+  name: 'Posts',
+
+  components: {
+    SinglePost,
+    NewPost
+  }
+
+}
+</script>
+
+<style>
+.align-self-start {
+
+}
+</style>
+
+```
+
+### Adicionando a NavBar
+
+Primeiro, vamos criar o componente `NavBar`, dentro da pasta components, em um arquivo chamado `NavBar.vue`:
+
 ```js
 <template>
   <b-navbar toggleable="md" type="dark" variant="info">
@@ -901,197 +731,28 @@ export default {
 }
 </style>
 
-```
-
-# PostList.vue
-```js
-<template>
-  <div class="post-list">
-    <div
-      v-for="post in postList"
-      :key="post._id"
-    >
-      <b-card>
-        <b-media>
-          <b-img slot="aside" blank blank-color="#ccc" width="64" alt="placeholder" />
-          <h5 class="mt-0" v-text="post.user"></h5>
-          <p v-text="post.content"></p>
-        </b-media>
-        <div class="btn-card">
-          <b-button size="sm" class="my-2 my-sm-0" type="submit">Remover</b-button>
-        </div>
-      </b-card>
-    </div>
-
-    <!-- <div
-      class="post-box"
-      v-for="post in postList"
-      :key="post._id"
-    >
-      <p class="post-box-content" v-text="post.content"></p>
-
-      <div class="post-session">
-        <div class="post-box-user">
-          <span v-text="post.user"></span>
-        </div>
-        <el-button
-            class="remove-post"
-            type="primary"
-            @click="removePost(post)"
-        >Remover</el-button>
-      </div>
-    </div> -->
-  </div>
-</template>
-
-<script>
-import { mapGetters, mapActions } from 'vuex'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-
-export default {
-  name: 'PostList',
-
-  // computed: {
-  //   ...mapGetters([] 'getPostsList' ])
-  // },
-  computed: {
-    ...mapGetters([ 'getPostsList' ]),
-
-    postList () {
-      let list = this.getPostsList
-      return list.reverse()
-    }
-  },
-
-  methods: {
-    ...mapActions(['deletePost']),
-
-    removePost (post) {
-      console.log(post)
-      this.deletePost(post)
-    }
-  }
-}
-</script>
-<style>
-.card {
-  margin-left: 400px;
-  margin-right: 400px;
-  margin-bottom: 10px;
-  margin-top: 10px;
-}
-
-.media {
-  text-align: left;
-}
-
-.btn-card {
-  margin: 10px;
-  display: flex;
-  justify-content: flex-end;
-}
-/* .post-list {
-  /* display: flex;
-  flex-direction: column; */
-/* } */
-
-/* .post-box {
-  flex: flex-grow;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  border-radius: 5px;
-  margin: 17px;
-  margin-right: 109px;
-  margin-left: 109px;
-  color: #414141;
-  background: #f5e4ff85;
-  padding: 9px;
-}
-
-.remove-post {
-  border-radius: 6px;
-  border-style: solid;
-  background-color: #8215c5;
-  border-color:#8215c5;
-  color: #ffffff;
-}
-
-.post-session {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-.post-box-content {
-  word-wrap: break-word;
-  text-align: left;
-  background-color: #f3dfff;
-  border-radius: 6px;
-  height: 100px;
-  padding: 14px;
-}
-
-.post-box-user {
-  align-content: flex-start;
-} */
-
-</style>
 
 ```
 
-# Post.vue
+Dentro de `App.vue`, vamos adicionar o componente navbar, pois esse componente estará presente em todas as páginas!
 
-```js
-<template>
-  <div>
-    <new-post></new-post>
-    <post-list></post-list>
-  </div>
-</template>
-
-<script>
-import NewPost from './NewPost.vue'
-import PostList from './PostList.vue'
-
-export default {
-  name: 'posts',
-
-  components: {
-    NewPost,
-    PostList
-  }
-}
-</script>
-
-```
-
-# App.vue
 ```js
 <template>
   <div id="app">
-    <navbar :icon="image"></navbar>
+    <nav-bar></nav-bar>
     <router-view/>
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex'
-import Navbar from './components/NavBar.vue'
-import image from './assets/trash-dove.png'
+import NavBar from './components/NavBar'
 
 export default {
   name: 'App',
 
   components: {
-    Navbar
-  },
-
-  data () {
-    return {
-      image: image
-    }
+    NavBar
   },
 
   computed: mapState([
@@ -1103,23 +764,118 @@ export default {
     dispatch('loadPostsList')
     console.log(this.$store.state.posts)
   }
+
 }
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css?family=Poppins|Roboto');
-
 #app {
-  margin-top: 0px;
-  font-family: 'Roboto', 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  margin-top: 60px;
 }
 </style>
 
 ```
+
+### Removendo um post
+
+No arquivo `SinglePost.vue`, precisamos criar um método que chame a action do store para remover um post.
+Na div abaixo, dentro deste arquivo, vamos adicionar a o `@click="removePost(post)"`
+
+```html
+  <div class="btn-card">
+    <b-button size="sm" class="my-2 my-sm-0" type="submit" @click="removePost(post)">Remover</b-button>
+  </div>
+```
+
+Dentro da tag `<script>` vamos adicionar `mapActions` do vuex e o método:
+
+```js
+import { mapGetters, mapActions } from 'vuex'
+
+export default {
+// codigo até a computed property
+
+  methods: {
+    ...mapActions(['deletePost']),
+
+    removePost (post) {
+      this.deletePost(post)
+    }
+  }
+
+```
+
+### Melhorando o front-end
+
+1. Margem do componente app:
+  * remover `  margin-top: 60px;` do `App.vue`
+
+2. Ajustando a posição dos itens dentro do card, no arquivo ``SinglePost.vue``:
+  * adicionar css para media, dentro da tag ``<style>``:
+      ```css
+        .media {
+          text-align: left;
+        }
+      ```
+  * adicionar css para botão:
+    ````css
+      .btn-card {
+        margin: 10px;
+        display: flex;
+        justify-content: flex-end;
+      }
+    ```
+
+3. Formatando a lista de posts:
+
+* No arquivo `SinglePost.vue` adicionar classe ``class="post-list"`` a div que encapsula a lista de posts, com ``display: grid``:
+  ```js
+      <template>
+        <div class="post-list">
+          <div
+            v-for="post in postList"
+            :key="post._id"
+          >
+            <b-card class="single-post">
+              <b-media>
+                <img class="align-self-start" width="64" height="64" src="../assets/trash-dove.png" slot="aside" blank  alt="placeholder" />
+                <h5 class="mt-0" v-text="post.user"></h5>
+                <p v-text="post.content"></p>
+              </b-media>
+              <div class="btn-card">
+                <b-button size="sm" class="my-2 my-sm-0" type="submit">Remover</b-button>
+              </div>
+            </b-card>
+          </div>
+        </div>
+      </template>
+
+  ```
+
+  ```css
+    .post-list{
+      display: grid;
+    }
+
+    .single-post {
+      margin-left: 60px;
+      margin-right: 60px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+  ```
+
+# Próximos passos:
+- Criar rota para página do usuário
+  Aqui, você precisa criar uma página para que o usuário possa acessar seu próprio perfil. Em seguida, ligar com a API existente para pegar os dados dos usuários.
+  Dica: A princípio, utilize informações estáticas para criar o componente.
+
+- Tornar o app completamente responsivo
 
 ## Outros links interessantes:
 Abaixo você encontra alguns links interessantes sobre Vue e alguns recursos adicionais.
@@ -1150,7 +906,3 @@ Abaixo você encontra alguns links interessantes sobre Vue e alguns recursos adi
 * [CSS Tricks](https://css-tricks.com/)
 * [httpstatuses](https://httpstatuses.com/)
 * [gitignore.io](gitignore.io)
-
-# Agradecimentos
-
-Obrigada Lucas, pois sem a sua contribuição a lista não estaria correta.

@@ -6,7 +6,7 @@
     >
       <b-card>
         <b-media>
-          <b-img slot="aside" blank blank-color="#ccc" width="64" alt="placeholder" />
+          <img class="mr-3" src="../assets/trash-dove.png" slot="aside" blank blank-color="#ccc" width="64" height="64" alt="placeholder" />
           <h5 class="mt-0" v-text="post.user"></h5>
           <p v-text="post.content"></p>
         </b-media>
