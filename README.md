@@ -97,6 +97,7 @@ Para este curso, faremos os itens 1 e 4 dos requisitos do Site. A API - Versão 
 O Vue.js é baseado no conceito de Virtual DOM, que consiste em uma representação da árvore do DOM em forma de objeto. Dentro de um framework de Javascript, isso facilita a manipulação de estruturas e alteração de dados dentro das estruturas estáticas. Para saber mais sobre o cliclo de vida das aplicações em Vue acesse esse [link](https://br.vuejs.org/v2/guide/instance.html).
 
 ## Criando o projeto
+
 1. Crie um repositório na sua conta do Github. [Siga os passos nesse link caso esteja fazendo isso pela primeira vez](https://help.github.com/articles/create-a-repo/)
 
 2. [Clone o repositório localmente](https://help.github.com/articles/cloning-a-repository/)
@@ -303,9 +304,6 @@ export default {
 ```
 
 
-
-
-### Criando o primeiro componente
 ## Criando componentes
 Vamos criar nosso primeiro componente, no qual vamos mostrar a lista de posts. Dentro da pasta `components`, vamos criar um arquivo `Posts.vue`. Dentro do desse arquivo teremos a seguinte estrutura:
 
@@ -429,7 +427,6 @@ export default new Router({
 ```
 
 Execute o comandos ``npm run dev` no terminal e vá até http://localhost:8080 para testar. Você deve ter todos os posts listados na tela :)
-
 
 ### Melhorando a divisão dos componentes
 

@@ -1,20 +1,27 @@
 <template>
   <div>
     <new-post></new-post>
-    <post-list></post-list>
+    <single-post></single-post>
   </div>
 </template>
 
 <script>
-import NewPost from './NewPost.vue'
-import PostList from './PostList.vue'
+import SinglePost from './SinglePost'
+import NewPost from './NewPost'
 
 export default {
-  name: 'posts',
+  name: 'Posts',
 
   components: {
-    NewPost,
-    PostList
+    SinglePost,
+    NewPost
   }
+
 }
 </script>
+
+<style>
+.align-self-start {
+
+}
+</style>

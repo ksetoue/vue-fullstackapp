@@ -8,7 +8,6 @@
       :rows="1"
       :placeholder="formatPlaceholder"
       v-model="content"
-      @keydown.native="newCommentKeyDown($event)"
     ></el-input>
     <div class="wrapper__button">
       <b-button
@@ -16,12 +15,6 @@
       >
         Enviar
       </b-button>
-      <!-- <el-button
-          class="wrapper__button-send"
-          type="primary"
-          slot="append"
-          @click="addPost()"
-      >Enviar</el-button> -->
     </div>
   </div>
 
@@ -56,10 +49,6 @@ export default {
         content: this.content
       }
       this.createPost(newPost)
-    },
-
-    newCommentKeyDown () {
-
     }
   }
 }
